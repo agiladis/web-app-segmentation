@@ -1,0 +1,242 @@
+<!-- app/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Segmentation App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .main-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        label:hover {
+            background-color: #0056b3;
+        }
+
+        .filename {
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .image-container {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+
+        .custom-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .custom-button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Styles for displaying matrices */
+        .matrix-container {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .matrix-block {
+            width: 30%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            overflow: auto; /* Enable scrolling for large matrices */
+        }
+
+        .matrix-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .matrix-content {
+            font-family: monospace;
+            white-space: nowrap; /* Prevent line breaks */
+        }
+
+        .matrix-row {
+            margin-bottom: 5px;
+        }
+
+        .matrix-value {
+            margin: 0 !important;
+            padding: 4px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            display: inline-block;
+            width: 30px; /* Adjust width as needed */
+            text-align: center;
+            margin-right: 5px;
+        }
+
+        .custom-col {
+            width: 100px;
+        }
+
+        .result-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result-heading {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .result-text {
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .result-text.Retak {
+            background-color: #ff6347; /* Red */
+            color: #fff;
+        }
+
+        .result-text.TidakRetak {
+            background-color: #32cd32; /* Green */
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Image Segmentation App</h1>
+        <form method="post" enctype="multipart/form-data">
+            <label for="file">Choose Image</label>
+            <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .gif" onchange="displayFilename(this)">
+            <button type="submit" class="custom-button">Segment Image</button>
+        </form>
+
+        <div class="filename" id="filenameDisplay"></div>
+
+        {% if filename %}
+        <h2>Result : {{ result_text }}</h2>
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='result.png') }}" alt="Result Image">
+        </div>
+        <div class="matrix-container">
+            <div class="matrix-block">
+                <h3 class="matrix-title">Original Image</h3>
+                <div class="matrix-content">
+                    {% for row in original_matrix %}
+                        <div class="matrix-row">
+                            {% for value in row %}
+                                <span class="matrix-value custom-col">{{ value[0] }}, {{ value[1] }}, {{ value[2] }}{% if not loop.last %}, {% endif %}</span>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="matrix-block">
+                <h3 class="matrix-title">Green Channel</h3>
+                <div class="matrix-content">
+                    {% for row in green_channel_matrix %}
+                        <div class="matrix-row">
+                            {% for value in row %}
+                                <span class="matrix-value">{{ value }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="matrix-block">
+                <h3 class="matrix-title">CLAHE on Green Channel</h3>
+                <div class="matrix-content">
+                    {% for row in clahe_green_matrix %}
+                        <div class="matrix-row">
+                            {% for value in row %}
+                                <span class="matrix-value">{{ value }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function displayFilename(input) {
+            var filenameDisplay = document.getElementById('filenameDisplay');
+            filenameDisplay.textContent = 'Selected File: ' + input.files[0].name;
+        }
+    </script>
+</body>
+</html>

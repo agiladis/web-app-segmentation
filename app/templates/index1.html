@@ -1,0 +1,142 @@
+<!-- app/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Segmentation App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5; /* Adding a background color for better visibility */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .main-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%; /* Adjust the width as needed */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* label {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        } */
+        label {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        label:hover {
+            background-color: #0056b3;
+        }
+
+        .filename {
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .image-container {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            margin-top: 10px; /* Additional margin around the image */
+        }
+
+        .custom-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .custom-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Hide default file input button */
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Image Segmentation App</h1>
+        <form method="post" enctype="multipart/form-data">
+            <label for="file">Choose Image</label>
+            <input type="file" id="file" name="file" accept=".png, .jpg, .jpeg, .gif" onchange="displayFilename(this)">
+            <button type="submit" class="custom-button">Segment Image</button>
+        </form>
+
+        <div class="filename" id="filenameDisplay"></div>
+
+        {% if filename %}
+        <h2>Result</h2>
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='original.png') }}" alt="Original Image">
+            <!-- <img src="{{ url_for('static', filename='green_channel.png') }}" alt="Green Channel">
+            <img src="{{ url_for('static', filename='clahe_green.png') }}" alt="CLAHE on Green Channel">
+            <img src="{{ url_for('static', filename='result.png') }}" alt="Segmented Mask"> -->
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function displayFilename(input) {
+            var filenameDisplay = document.getElementById('filenameDisplay');
+            filenameDisplay.textContent = 'Selected File: ' + input.files[0].name;
+        }
+    </script>
+</body>
+</html>
